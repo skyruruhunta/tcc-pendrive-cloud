@@ -1,31 +1,38 @@
 import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import firestore
-from datetime import datetime
+from firebase_admin import credentials, firestore
+import platform
+import socket
+import psutil
 
-caminho_da_chave = "pendrive-cloud-tcc-firebase-adminsdk-fbsvc-1b25ef1c10.json"
+cred = credentials.Certificate("pendrive-cloud-tcc-firebase-adminsdk-fbsvc-1b25ef1c10.json")
+firebase_admin.initialize_app(cred)
+db = firestore.client()
 
-try:
-    print("Iniciando credenciais...")    
-    cred = credentials.Certificate(caminho_da_chave)
-    firebase_admin.initialize_app(cred)
+ram_info = psutil.virtual_memory()
+ram_total_gb = round(ram_info.total / (1024 ** 3), 2)
 
-    db = firestore.client()
+disco_info = psutil.disk_usage('C:\\')
+disco_total_gb = round(disco_info.total / (1024 ** 3), 2)
+disco_livre_gb = round(disco_info.free / (1024 ** 3), 2)
 
-    dados_teste = {
-        "id_maquina": "PC-TCC-MOCK-001",
-        "cpu_status": "Aprovado",
-        "ram_status": "Aprovado",
-        "temperatura_pico_celsius": 72,
-        "rede_status": "ONLINE",
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    }
+dados_hardware = {
+    'nome_da_maquina': socket.gethostname(),
+    'sistema_operacional': platform.system(),
+    'versao_os': platform.release(),
+    'arquitetura': platform.machine(),
+    'processador': platform.processor(),
+    'memoria_ram_total_GB': ram_total_gb,
+    'disco_C_total_GB': disco_total_gb,
+    'disco_C_livre_GB': disco_livre_gb,
+    'status_conexao': 'SUCESSO ABSOLUTO - Leitura Profunda'
+}
 
-    print("Tentando enviar o pacote de diagnóstico para a nuvem...")
+print("Coletando dados avançados do hardware...")
+for chave, valor in dados_hardware.items():
+    print(f"{chave}: {valor}")
 
-    db.collection("diagnosticos").add(dados_teste)
+print("\nTentando enviar o pacote de diagnóstico completo para a nuvem...")
+doc_ref = db.collection('diagnosticos').document('relatorio_pc')
+doc_ref.set(dados_hardware)
 
-    print("\n SUCESSO ABSOLUTO! Os dados foram gravados no seu Firestore.")
-
-except Exception as e:
-    print(f"\n ERRO NA CONEXÃO: {e}")
+print("Dados avançados gravados com sucesso no Firestore!")
