@@ -19,15 +19,15 @@ def coletar_hardware_base():
             "ram_capacidade": "Nao encontrada"
         }
 
+        sistema_principal = dados_raw[0] if dados_raw else {}
+        hardware_base['fabricante'] = sistema_principal.get('vendor', 'Desconhecido')
+        hardware_base['modelo'] = sistema_principal.get('product', 'Desconhecido')
+
         for item in dados_raw:
             classe = item.get('class')
             item_id = item.get('id', '')
 
-            if classe == 'system':
-                hardware_base['fabricante'] = item.get('vendor', 'Desconhecido')
-                hardware_base['modelo'] = item.get('product', 'Desconhecido')
-
-            elif classe == 'processor':
+            if classe == 'processor':
                 hardware_base['processador'] = item.get('product', 'Desconhecido')
 
             elif classe == 'memory' and item_id == 'memory':
