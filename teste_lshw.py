@@ -10,25 +10,30 @@ def coletar_hardware_base():
             check=True
         )
 
-        dados_raw = json.loads(resultado.stdout)[0]
+        dados_raw = json.loads(resultado.stdout)
 
         hardware_base = {
-            "fabricante": dados_raw.get('vendor', 'Desconhecido'),
-            "modelo": dados_raw.get('product', 'Desconhecido'),
+            "fabricante": "Desconhecido",
+            "modelo": "Desconhecido",
             "processador": "Nao encontrado",
             "ram_capacidade": "Nao encontrada"
         }
 
-        if 'children' in dados_raw:
-            for node in dados_raw['children']:
-                if node.get('id') == 'core' and 'children' in node:
-                    for subnode in node['children']:
-                        if subnode.get('class') == 'processor':
-                            hardware_base['processador'] = subnode.get('product', 'Desconhecido')
-                        elif subnode.get('class') == 'memory' and subnode.get('id') == 'memory':
-                            tamanho_bytes = subnode.get('size', 0)
-                            if tamanho_bytes:
-                                hardware_base['ram_capacidade'] = f"{round(tamanho_bytes / (1024**3), 2)} GB"
+        for item in dados_raw:
+            classe = item.get('class')
+            item_id = item.get('id', '')
+
+            if classe == 'system':
+                hardware_base['fabricante'] = item.get('vendor', 'Desconhecido')
+                hardware_base['modelo'] = item.get('product', 'Desconhecido')
+
+            elif classe == 'processor':
+                hardware_base['processador'] = item.get('product', 'Desconhecido')
+
+            elif classe == 'memory' and item_id == 'memory':
+                tamanho_bytes = item.get('size', 0)
+                if tamanho_bytes:
+                    hardware_base['ram_capacidade'] = f"{round(tamanho_bytes / (1024**3), 2)} GB"
 
         return hardware_base
 
