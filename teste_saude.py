@@ -33,15 +33,19 @@ def coletar_saude_passiva(disco_alvo="nvme0n1"):
         print("Erro ao fazer parse do JSON do lm-sensors.")
 
     try:
-        cmd_smart = ['sudo', 'smartctl', '--info', '--health', '--json', f'/dev/{disco_alvo}']
+        cmd_smart = ['sudo', 'smartctl', '-a', '--json', f'/dev/{disco_alvo}']
         res_smart = subprocess.run(cmd_smart, capture_output=True, text=True)
 
         dados_smart = json.loads(res_smart.stdout)
 
+        temperatura = dados_smart.get(
+            "nvme_smart_health_information_log", {}
+        ).get("temperature", "Desconhecida")
+
         saude['armazenamento'][disco_alvo] = {
             "modelo": dados_smart.get("model_name", "Desconhecido"),
             "status_saude": dados_smart.get("smart_status", {}).get("passed", "Desconhecido"),
-            "temperatura_celsius": dados_smart.get("temperature", {}).get("current", "Desconhecida")
+            "temperatura_celsius": temperatura
         }
     except Exception as e:
         print(f"Erro na leitura SMART do disco {disco_alvo}: {e}")
