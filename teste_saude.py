@@ -61,7 +61,7 @@ def coletar_saude_disco(nome_disco):
             temperatura = dados_smart.get(
                 'nvme_smart_health_information_log', {}
             ).get('temperature', 'Desconhecida')
-        elif tipo_disco == 'ata':
+        elif tipo_disco in ('ata', 'sat', 'scsi'):
             temperatura = extrair_temperatura_ata(dados_smart)
         else:
             temperatura = 'Desconhecida'
