@@ -46,6 +46,12 @@ def extrair_temperatura_ata(dados_smart):
     tabela_atributos = dados_smart.get('ata_smart_attributes', {}).get('table', [])
     for atributo in tabela_atributos:
         if atributo.get('id') == 194:
+            raw_string = atributo.get('raw', {}).get('string', '')
+            if raw_string:
+                try:
+                    return int(raw_string.split()[0])
+                except (ValueError, IndexError):
+                    pass
             return atributo.get('raw', {}).get('value', 'Desconhecida')
     return 'Desconhecida'
 
