@@ -33,12 +33,12 @@ def coletar_temperaturas_sistema():
 def descobrir_discos():
     try:
         resultado = subprocess.run(
-            ['lsblk', '-d', '-j', '-e', '7,11', '-o', 'NAME'],
+            ['lsblk', '-d', '-n', '-e', '7,11', '-o', 'NAME'],
             capture_output=True, text=True, check=True
         )
-        dados = json.loads(resultado.stdout)
-        return [disco['name'] for disco in dados.get('blockdevices', [])]
-    except (subprocess.CalledProcessError, json.JSONDecodeError) as e:
+        linhas = resultado.stdout.strip().split('\n')
+        return [linha.strip() for linha in linhas if linha.strip()]
+    except subprocess.CalledProcessError as e:
         print(f"Erro ao descobrir discos: {e}")
         return []
 
