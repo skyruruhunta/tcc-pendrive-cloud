@@ -2,7 +2,7 @@ import subprocess
 import json
 import time
 
-LIMITE_TEMP_CPU = 85.0
+LIMITE_TEMP_CPU = 75.0
 INTERVALO_MONITORAMENTO = 2.0
 TEMPO_ESTRESSE = "60s"
 
